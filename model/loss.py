@@ -61,4 +61,4 @@ if __name__ == '__main__':
     import config
     cfg = config.Config
     evaluator = build_loss_evaluator(cfg)
-    print evaluator(pre, gt)
+    print (evaluator(pre, gt))

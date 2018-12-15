@@ -83,7 +83,6 @@ def plot_heatmap(image, gt,label, model, layer):
     cxr = np.clip(cxr, 0, 1)
     LABEL = label
     # print cxr.size()
-    print cxr.shape
     hmap.imshow(cxr,
                 aspect=hmap.get_aspect(),
                 extent=hmap.get_xlim() + hmap.get_ylim(),
@@ -106,7 +105,6 @@ def plot_heatmap(image, gt,label, model, layer):
 if __name__ == '__main__':
     # passed
     import torch
-    print torch.__version__
     from model import config
     import torch.optim as optim
     from model.model import build_extractor_fpn

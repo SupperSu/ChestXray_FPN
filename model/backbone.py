@@ -88,7 +88,7 @@ class ResNet_50(nn.Module):
     def forward(self, x):
         features = []
         for idx, layer in enumerate(self.model.children()):
-            print idx
+            print (idx)
             x = layer(x)
             if idx in self.cfg.EXTRACT_LAYER:
                 features.append(x)

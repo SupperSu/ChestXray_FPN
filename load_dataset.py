@@ -38,6 +38,7 @@ class ChestXrayDataSet(Dataset):
         label = self.labels[index]
         # image = torch.randn([256,256]).type(torch.FloatTensor)
         image = Image.open(os.path.join(self.root, picName))
+        image = image.convert(mode="RGB")
         if self.transform is not None:
             image = self.transform(image)
         label = torch.from_numpy(label).type(torch.FloatTensor)

@@ -13,7 +13,6 @@ class AttFPNPredictor(nn.Module):
         self.linear_blocks = []
         in_channels_list = cfg.EXTRACTOR_OUTPUT_CHANNELS
         out_channels = cfg.FPN_OUTPUT_CHANNELS
-        self.batch_size = cfg.BATCH_SIZE
 
         for idx, in_channels in enumerate(in_channels_list, 1):
             linear_block = "fpn_linear{}".format(idx)
@@ -44,9 +43,10 @@ class AttFPNPredictor(nn.Module):
         :param linear_block: in the current layer, the linear that is used
         :return: weighted feature maps
         """
+        batch_size = x.size()[0]
         weight = getattr(self, linear_block).weight
         # (batch_size, class, num_featuremaps)
-        weight = weight.unsqueeze(0).expand(self.batch_size, weight.size()[0], weight.size()[1])
+        weight = weight.unsqueeze(0).expand(batch_size, weight.size()[0], weight.size()[1])
         weight = torch.transpose(weight, dim0=1, dim1=2)  # (batch_size, num_featuremaps, num_class)
         # use max pool to make (14, 512) to (batch, 512, 1) -- intuition: only consider the sailent part. of each disease
         # since we only focus on patient who have disease, so we only attention on that part
@@ -61,9 +61,11 @@ class AttFPNPredictor(nn.Module):
         :param linear_block: in the current layer, the linear that is used
         :return: current level output
         """
+        batch_size = x.size()[0]
         logit = F.max_pool2d(x, x.size()[2:]) #
-        logit = getattr(self, linear_block)(logit.view(self.batch_size, -1))
-        output = F.softmax(logit)
+        logit = getattr(self, linear_block)(logit.view(batch_size, -1))
+        # print (logit.size())
+        output = F.softmax(logit, dim=1)
         return output
 
     def forward(self, x):
@@ -98,6 +100,7 @@ class AttFPNPredictor(nn.Module):
         results = tuple(results)
         has_disease, pres = self.post_process(results)
         return (has_disease, pres), att_feature_maps
+
     def post_process(self, predictions):
         """
         average each layer prediction.
@@ -129,7 +132,7 @@ class Extractor(nn.Module):
         for idx, layer in enumerate(self.model.children()):
             x = layer(x)
             if idx in self.cfg.EXTRACT_LAYER:
-                print x.shape
+                # print (x.shape)
                 features.append(x)
         return features
 
@@ -151,11 +154,12 @@ if __name__ == '__main__':
     optimizer = optim.SGD(list(mdl.parameters()), lr= 0.0001)
     x = torch.randn(2, 3, 512, 512)
     res, fea = mdl(x)
-    gt = torch.FloatTensor([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
-    mdl.zero_grad()
-    loss = evalu(res, gt)
-    loss.backward()
-    optimizer.step()
-    for fe in fea:
-        print fe.size()
+    print (res)
+    # gt = torch.FloatTensor([[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #                         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0]])
+    # mdl.zero_grad()
+    # loss = evalu(res, gt)
+    # loss.backward()
+    # optimizer.step()
+    # for fe in fea:
+    #     print fe.size()

@@ -2,7 +2,7 @@ import numpy as np
 
 class Config(object):
     # Model name
-    NAME = None
+    NAME = 'Experiment1'
 
     # Res net type
     FEATURE_EXTRACTOR = 'res50'
@@ -21,7 +21,8 @@ class Config(object):
     # FPN output channels
     FPN_OUTPUT_CHANNELS = 512
 
-    BATCH_SIZE=2
+    BATCH_SIZE=16
+    VAL_BATCH_SIZE=2
     # Currently only random crop supported
     CROP_SIZE=512
     EPOCH = 20
@@ -34,4 +35,4 @@ class Config(object):
     LOSS= "BCELoss"
 
     # Saving Setting:
-    LOG_STEP = 1000
+    LOG_STEP = 50
