@@ -3,3 +3,6 @@ new designed model for chestXray disease fine-grained disease detection, by usin
 **TODO**:  
 1.debug memory leak issue for gpu  
 2.design adaptive loss function  
+
+## Structure Draft
+![](/structure_draft.png)
